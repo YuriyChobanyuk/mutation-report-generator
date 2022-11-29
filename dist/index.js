@@ -7,14 +7,6 @@
 "use strict";
 module.exports = require("fs/promises");
 
-/***/ }),
-
-/***/ 17:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("path");
-
 /***/ })
 
 /******/ 	});
@@ -59,7 +51,6 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const fs = __nccwpck_require__(292);
-const path = __nccwpck_require__(17);
 
 const template = getTemplate();
 
@@ -76,7 +67,7 @@ const aggregateMutationResults = async () => {
   }
 
   const reportContent = getHtmlContent(JSON.stringify(template));
-  await fs.writeFile(path.resolve('./', './report.html'), reportContent, {encoding: 'utf8'});
+  await fs.writeFile('./report.html', reportContent, {encoding: 'utf8'});
 }
 
 aggregateMutationResults()
@@ -116,12 +107,12 @@ function getTemplate() {
 }
 
 function getMutationResultPath(dir) {
-  return path.resolve('./', `./StrykerOutput/${dir}/reports/mutation-report.json`);
+  return `./StrykerOutput/${dir}/reports/mutation-report.json`;
 }
 
 // Get list of directories where dotnet-stryker puts data per project
 async function getDirectories(source) {
-  return (await fs.readdir(path.resolve('./', source), {withFileTypes: true}))
+  return (await fs.readdir(source, {withFileTypes: true}))
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
 }
