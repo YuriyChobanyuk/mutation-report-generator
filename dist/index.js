@@ -76,7 +76,7 @@ const aggregateMutationResults = async () => {
   }
 
   const reportContent = getHtmlContent(JSON.stringify(template));
-  await fs.writeFile(path.join(__dirname, './report.html'), reportContent, {encoding: 'utf8'});
+  await fs.writeFile(path.resolve(__dirname, './report.html'), reportContent, {encoding: 'utf8'});
 }
 
 aggregateMutationResults()
@@ -116,12 +116,12 @@ function getTemplate() {
 }
 
 function getMutationResultPath(dir) {
-  return path.join(__dirname, `./StrykerOutput/${dir}/reports/mutation-report.json`);
+  return path.resolve(__dirname, `./StrykerOutput/${dir}/reports/mutation-report.json`);
 }
 
 // Get list of directories where dotnet-stryker puts data per project
 async function getDirectories(source) {
-  return (await fs.readdir(path.join(__dirname, source), {withFileTypes: true}))
+  return (await fs.readdir(path.resolve(__dirname, source), {withFileTypes: true}))
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
 }
