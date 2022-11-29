@@ -2,4 +2,4 @@ name: 'Generate mutation report'
 description: 'Parses Stryker-Output content and aggregates final report'
 runs:
   using: 'node16'
-  main: 'index.js'
+  main: 'dist/index.js'
