@@ -1,5 +1,9 @@
 name: 'Generate mutation report'
 description: 'Parses Stryker-Output content and aggregates final report'
+inputs:
+  github-token:
+    description: 'GitHub repository token'
+    required: true
 runs:
   using: 'node16'
   main: 'dist/index.js'

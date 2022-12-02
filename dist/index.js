@@ -9744,7 +9744,6 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const fs = __nccwpck_require__(3292);
-const core = __nccwpck_require__(1764);
 const github = __nccwpck_require__(2540);
 const { getActionInputs, getTemplate, getHtmlContent } = __nccwpck_require__ (4318);
 
@@ -9752,11 +9751,10 @@ const template = getTemplate();
 
 const getConfiguration = () => {
   const {
-    payload: { pull_request, repository, after },
+    payload: { repository },
     sha
   } = github.context;
 
-  const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
   return { owner, repo, sha };

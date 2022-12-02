@@ -1,5 +1,4 @@
 const fs = require('fs/promises');
-const core = require('@actions/core');
 const github = require('@actions/github');
 const { getActionInputs, getTemplate, getHtmlContent } = require ('./utils');
 
@@ -7,11 +6,10 @@ const template = getTemplate();
 
 const getConfiguration = () => {
   const {
-    payload: { pull_request, repository, after },
+    payload: { repository },
     sha
   } = github.context;
 
-  const issueNumber = pull_request?.number;
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
   return { owner, repo, sha };
