@@ -1,6 +1,40 @@
 const fs = require('fs/promises');
+const core = require('@actions/core');
+const github = require('@actions/github');
+const { getActionInputs, getTemplate, getHtmlContent } = require ('./utils');
 
 const template = getTemplate();
+
+const getConfiguration = () => {
+  const {
+    payload: { pull_request, repository, after },
+    sha
+  } = github.context;
+
+  const issueNumber = pull_request?.number;
+  const [owner, repo] = repository?.full_name?.split('/') || [];
+
+  return { owner, repo, sha };
+}
+
+const postActionResult = async () => {
+  const {token} = getActionInputs();
+  const octokit = github.getOctokit(token);
+  const {owner, repo, sha} = getConfiguration();
+
+  await octokit.request(`POST /repos/${owner}/${repo}/check-runs`, {
+    owner,
+    repo,
+    name: 'Mutation result notification',
+    head_sha: sha,
+    status: 'completed',
+    output: {
+      title: 'Mutation result notification',
+      summary: 'Some test summary',
+      text: 'Some test text'
+    }
+  });
+}
 
 const aggregateMutationResults = async () => {
   const directories = await getDirectories('./StrykerOutput');
@@ -19,40 +53,8 @@ const aggregateMutationResults = async () => {
 }
 
 aggregateMutationResults()
+  .then(() => postActionResult())
   .catch(e => console.log(e));
-
-function getHtmlContent(reportData) {
-  return `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Mutation resutls</title>
-  </head>
-  <body>
-  <script src="https://www.unpkg.com/mutation-testing-elements@1.7.12/dist/mutation-test-elements.js"></script>
-    <mutation-test-report-app src="mutation-report.json">
-      Your browser does not support custom elements. Please use a modern browser.
-    </mutation-test-report-app>
-    <script>
-      document.querySelector('mutation-test-report-app').report = ${reportData};
-    </script>
-  </body>
-</html>
-`;
-}
-
-function getTemplate() {
-  return {
-    schemaVersion: "1",
-    thresholds: {
-      high: 80,
-      low: 60
-    },
-    projectRoot: "",
-    files: {}
-  }
-}
 
 function getMutationResultPath(dir) {
   return `./StrykerOutput/${dir}/reports/mutation-report.json`;
