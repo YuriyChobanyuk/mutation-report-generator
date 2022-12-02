@@ -9760,23 +9760,40 @@ const getConfiguration = () => {
   return { owner, repo, sha };
 }
 
+const startCheckRun = async (octokit, owner, repo, sha) => {
+    return await octokit.request(`POST /repos/${owner}/${repo}/check-runs`, {
+      owner,
+      repo,
+      name: 'Mutation result notification',
+      head_sha: sha,
+      status: 'queued',
+      output: {
+        title: 'Mutation result notification',
+        summary: 'Some test summary',
+        text: 'Some test text'
+      }
+    });
+}
+
+const finishCheckRun = async (octokit, checkRunId, owner, repo) => {
+  return await octokit.request(`PATCH /repos/${owner}/${repo}/check-runs/${checkRunId}`, {
+    owner,
+    repo,
+    check_run_id: checkRunId,
+    name: 'Mutation result notification',
+    status: 'completed',
+    conclusion: 'success',
+    completed_at: new Date().toISOString(),
+  });
+}
+
 const postActionResult = async () => {
   const {token} = getActionInputs();
   const octokit = github.getOctokit(token);
   const {owner, repo, sha} = getConfiguration();
 
-  await octokit.request(`POST /repos/${owner}/${repo}/check-runs`, {
-    owner,
-    repo,
-    name: 'Mutation result notification',
-    head_sha: sha,
-    status: 'completed',
-    output: {
-      title: 'Mutation result notification',
-      summary: 'Some test summary',
-      text: 'Some test text'
-    }
-  });
+  const {id} = await startCheckRun(octokit, owner, repo, sha);
+  await finishCheckRun(octokit, id, owner, repo);
 }
 
 const aggregateMutationResults = async () => {
