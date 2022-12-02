@@ -9805,8 +9805,8 @@ const postActionResult = async () => {
   const {owner, repo, sha, runId} = getConfiguration();
 
   const response = await startCheckRun({octokit, owner, repo, sha});
-  const id = response.data.id;
-  await finishCheckRun({octokit, id, owner, repo, runId});
+  const checkRunId = response.data.id;
+  await finishCheckRun({octokit, checkRunId, owner, repo, runId});
 }
 
 const aggregateMutationResults = async () => {
