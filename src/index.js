@@ -24,14 +24,21 @@ const startCheckRun = async ({octokit, owner, repo, sha}) => {
       head_sha: sha,
       status: 'queued',
       output: {
-        title: 'Mutation testing is still in progress...',
+        title: 'Mutation testing',
+        summary: 'Mutation testing is still in progress...',
       }
     });
 }
 
-const finishCheckRun = async ({octokit, checkRunId, owner, repo, runId}) => {
+const getMutationCheckSummaryResult = (runId) => {
   const workflowRunUrl = `https://github.com/stratadecision/planning-capitaloptimization/actions/runs/${runId}`;
 
+  return `### Mutation testing finished successfully
+
+          Archive with a report was attached to the artifacts section on the [corresponding workflow run page](${workflowRunUrl});`
+}
+
+const finishCheckRun = async ({octokit, checkRunId, owner, repo, runId}) => {
   return await octokit.request(`PATCH /repos/${owner}/${repo}/check-runs/${checkRunId}`, {
     owner,
     repo,
@@ -42,11 +49,7 @@ const finishCheckRun = async ({octokit, checkRunId, owner, repo, runId}) => {
     completed_at: new Date().toISOString(),
     output: {
       title: 'Mutation testing had been finished',
-      text: `
-      ### Mutation testing finished successfully
-
-      Archive with a report was attached to the artifacts section on the [corresponding workflow run page](${workflowRunUrl});
-      `
+      summary: getMutationCheckSummaryResult(runId)
     }
   });
 }
