@@ -47,7 +47,9 @@ const postActionResult = async () => {
   const octokit = github.getOctokit(token);
   const {owner, repo, sha} = getConfiguration();
 
-  const {id} = await startCheckRun(octokit, owner, repo, sha);
+  const response = await startCheckRun(octokit, owner, repo, sha);
+  console.log(response);
+  const id = response.data.id;
   await finishCheckRun(octokit, id, owner, repo);
 }
 
