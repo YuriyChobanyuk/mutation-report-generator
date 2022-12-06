@@ -4,6 +4,12 @@ inputs:
   github-token:
     description: 'GitHub repository token'
     required: true
+  name:
+    description: 'Check run name'
+    required: true
+  check-run-id:
+    description: 'Id of check run that was started for mutation testing'
+    required: true
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -1,13 +1,17 @@
 const core = require('@actions/core');
 
-const inputs = {
-  token: 'github-token'
+const inputKeys = {
+  token: 'github-token',
+  name: 'name',
+  checkRunId: 'check-run-id'
 }
 
 module.exports.getActionInputs = () => {
-  const token = core.getInput(inputs.token) || process.env['GITHUB_TOKEN'] || '';
+  const token = core.getInput(inputKeys.token) || process.env['GITHUB_TOKEN'] || '';
+  const name = core.getInput(inputKeys.name);
+  const checkRunId = core.getInput(inputKeys.checkRunId);
 
-  return {token};
+  return {token, name, checkRunId};
 };
 
 module.exports.getHtmlContent = (reportData) => {

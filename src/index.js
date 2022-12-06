@@ -16,52 +16,35 @@ const getConfiguration = () => {
   return { owner, repo, sha, runId };
 }
 
-const startCheckRun = async ({octokit, owner, repo, sha}) => {
-    return await octokit.request(`POST /repos/${owner}/${repo}/check-runs`, {
-      owner,
-      repo,
-      name: 'Mutation testing is running',
-      head_sha: sha,
-      status: 'queued',
-      output: {
-        title: 'Mutation testing',
-        summary: 'Mutation testing is still in progress...',
-      }
-    });
-}
-
-const getMutationCheckSummaryResult = (runId) => {
-  const workflowRunUrl = `https://github.com/stratadecision/planning-capitaloptimization/actions/runs/${runId}`;
+const getMutationCheckSummaryResult = () => {
 
   return `### Mutation testing finished successfully
 
-          Archive with a report was attached to the artifacts section on the [corresponding workflow run page](${workflowRunUrl});`
+          You can find mutation result report artifact attached to this check run`;
 }
 
-const finishCheckRun = async ({octokit, checkRunId, owner, repo, runId}) => {
+const finishCheckRun = async ({octokit, checkRunId, owner, repo, name}) => {
   return await octokit.request(`PATCH /repos/${owner}/${repo}/check-runs/${checkRunId}`, {
     owner,
     repo,
     check_run_id: checkRunId,
-    name: 'Mutation result notification',
+    name,
     status: 'completed',
     conclusion: 'success',
     completed_at: new Date().toISOString(),
     output: {
       title: 'Mutation testing had been finished',
-      summary: getMutationCheckSummaryResult(runId)
+      summary: getMutationCheckSummaryResult()
     }
   });
 }
 
 const postActionResult = async () => {
-  const {token} = getActionInputs();
+  const {token, name, checkRunId} = getActionInputs();
   const octokit = github.getOctokit(token);
-  const {owner, repo, sha, runId} = getConfiguration();
+  const {owner, repo, runId} = getConfiguration();
 
-  const response = await startCheckRun({octokit, owner, repo, sha});
-  const checkRunId = response.data.id;
-  await finishCheckRun({octokit, checkRunId, owner, repo, runId});
+  await finishCheckRun({octokit, checkRunId, owner, repo, name});
 }
 
 const aggregateMutationResults = async () => {
