@@ -9513,17 +9513,18 @@ function wrappy (fn, cb) {
 const core = __nccwpck_require__(1764);
 
 const inputKeys = {
-  token: 'github-token',
-  name: 'name',
-  checkRunId: 'check-run-id'
-}
+  token: "github-token",
+  name: "name",
+  checkRunId: "check-run-id",
+};
 
 module.exports.getActionInputs = () => {
-  const token = core.getInput(inputKeys.token) || process.env['GITHUB_TOKEN'] || '';
+  const token =
+    core.getInput(inputKeys.token) || process.env["GITHUB_TOKEN"] || "";
   const name = core.getInput(inputKeys.name);
   const checkRunId = core.getInput(inputKeys.checkRunId);
 
-  return {token, name, checkRunId};
+  return { token, name, checkRunId };
 };
 
 module.exports.getHtmlContent = (reportData) => {
@@ -9545,19 +9546,21 @@ module.exports.getHtmlContent = (reportData) => {
   </body>
 </html>
 `;
-}
+};
 
-module.exports.getTemplate = () => {
+module.exports.getTemplate = (
+  thresholds = {
+    high: 80,
+    low: 60,
+  }
+) => {
   return {
     schemaVersion: "1",
-    thresholds: {
-      high: 80,
-      low: 60
-    },
+    thresholds,
     projectRoot: "",
-    files: {}
-  }
-}
+    files: {},
+  };
+};
 
 
 /***/ }),
@@ -9756,13 +9759,12 @@ const template = getTemplate();
 const getConfiguration = () => {
   const {
     payload: { repository },
-    sha,
-    runId
+    sha
   } = github.context;
 
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
-  return { owner, repo, sha, runId };
+  return { owner, repo, sha };
 }
 
 const getMutationCheckSummaryResult = () => {
@@ -9791,26 +9793,30 @@ const finishCheckRun = async ({octokit, checkRunId, owner, repo, name}) => {
 const postActionResult = async () => {
   const {token, name, checkRunId} = getActionInputs();
   const octokit = github.getOctokit(token);
-  const {owner, repo, runId} = getConfiguration();
+  const {owner, repo} = getConfiguration();
 
   await finishCheckRun({octokit, checkRunId, owner, repo, name});
 }
 
 const aggregateMutationResults = async () => {
-  const directories = await getDirectories('./StrykerOutput');
+  const directories = await getDirectories("./StrykerOutput");
 
   for (let i = 0; i < directories.length; i++) {
-    const data = JSON.parse(await fs.readFile(getMutationResultPath(directories[i]), {encoding: 'utf8'}));
+    const data = JSON.parse(
+      await fs.readFile(getMutationResultPath(directories[i]), {
+        encoding: "utf8",
+      })
+    );
 
     template.files = {
       ...template.files,
       ...data.files,
-    }
+    };
   }
 
   const reportContent = getHtmlContent(JSON.stringify(template));
-  await fs.writeFile('./report.html', reportContent, {encoding: 'utf8'});
-}
+  await fs.writeFile("./report.html", reportContent, { encoding: "utf8" });
+};
 
 aggregateMutationResults()
   .then(() => postActionResult())
