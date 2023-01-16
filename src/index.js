@@ -7,13 +7,12 @@ const template = getTemplate();
 const getConfiguration = () => {
   const {
     payload: { repository },
-    sha,
-    runId
+    sha
   } = github.context;
 
   const [owner, repo] = repository?.full_name?.split('/') || [];
 
-  return { owner, repo, sha, runId };
+  return { owner, repo, sha };
 }
 
 const getMutationCheckSummaryResult = () => {
@@ -42,26 +41,30 @@ const finishCheckRun = async ({octokit, checkRunId, owner, repo, name}) => {
 const postActionResult = async () => {
   const {token, name, checkRunId} = getActionInputs();
   const octokit = github.getOctokit(token);
-  const {owner, repo, runId} = getConfiguration();
+  const {owner, repo} = getConfiguration();
 
   await finishCheckRun({octokit, checkRunId, owner, repo, name});
 }
 
 const aggregateMutationResults = async () => {
-  const directories = await getDirectories('./StrykerOutput');
+  const directories = await getDirectories("./StrykerOutput");
 
   for (let i = 0; i < directories.length; i++) {
-    const data = JSON.parse(await fs.readFile(getMutationResultPath(directories[i]), {encoding: 'utf8'}));
+    const data = JSON.parse(
+      await fs.readFile(getMutationResultPath(directories[i]), {
+        encoding: "utf8",
+      })
+    );
 
     template.files = {
       ...template.files,
       ...data.files,
-    }
+    };
   }
 
   const reportContent = getHtmlContent(JSON.stringify(template));
-  await fs.writeFile('./report.html', reportContent, {encoding: 'utf8'});
-}
+  await fs.writeFile("./report.html", reportContent, { encoding: "utf8" });
+};
 
 aggregateMutationResults()
   .then(() => postActionResult())

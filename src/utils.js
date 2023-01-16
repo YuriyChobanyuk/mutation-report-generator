@@ -1,17 +1,18 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 
 const inputKeys = {
-  token: 'github-token',
-  name: 'name',
-  checkRunId: 'check-run-id'
-}
+  token: "github-token",
+  name: "name",
+  checkRunId: "check-run-id",
+};
 
 module.exports.getActionInputs = () => {
-  const token = core.getInput(inputKeys.token) || process.env['GITHUB_TOKEN'] || '';
+  const token =
+    core.getInput(inputKeys.token) || process.env["GITHUB_TOKEN"] || "";
   const name = core.getInput(inputKeys.name);
   const checkRunId = core.getInput(inputKeys.checkRunId);
 
-  return {token, name, checkRunId};
+  return { token, name, checkRunId };
 };
 
 module.exports.getHtmlContent = (reportData) => {
@@ -33,16 +34,18 @@ module.exports.getHtmlContent = (reportData) => {
   </body>
 </html>
 `;
-}
+};
 
-module.exports.getTemplate = () => {
+module.exports.getTemplate = (
+  thresholds = {
+    high: 80,
+    low: 60,
+  }
+) => {
   return {
     schemaVersion: "1",
-    thresholds: {
-      high: 80,
-      low: 60
-    },
+    thresholds,
     projectRoot: "",
-    files: {}
-  }
-}
+    files: {},
+  };
+};
